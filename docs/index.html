@@ -41,10 +41,6 @@
       margin-top: 5px;
       font-size: 0.8em;
       padding: 2px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      cursor: pointer; /* Indica que é clicável */
     }
   </style>
   <!-- Importando a biblioteca PapaParse via CDN -->
@@ -82,7 +78,6 @@
     function loadEventsFromCSV() {
       // URL do arquivo CSV no GitHub (use o link "raw")
       const csvUrl = 'https://raw.githubusercontent.com/usuario/repositorio/main/events.csv';
-
 
       Papa.parse(csvUrl, {
         download: true,
@@ -136,12 +131,6 @@
                     let div = document.createElement('div');
                     div.classList.add('event');
                     div.textContent = ev.description;
-                    // Adiciona o título para exibir o nome completo do evento em um tooltip
-                    div.setAttribute('title', ev.description);
-                    // Ao clicar, exibe um pop-up com a descrição completa do evento
-                    div.addEventListener('click', function() {
-                      alert(ev.description);
-                    });
                     cell.appendChild(div);
                   });
             date++;
