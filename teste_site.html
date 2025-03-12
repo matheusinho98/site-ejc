@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Calendário de Eventos</title>
+  <!-- Inclusão do FullCalendar via CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #calendar { max-width: 900px; margin: 0 auto; }
+    button { margin-top: 20px; }
+    /* Estilos para o modal */
+    .modal {
+      position: fixed; 
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; padding: 20px; border-radius: 5px;
+      max-width: 400px; width: 100%;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Calendário de Eventos</h1>
+  <!-- Calendário sempre visível -->
+  <div id="calendar"></div>
+  
+  <!-- Botão para abrir a tela de inserção de evento -->
+  <button id="open-event-btn">Adicionar Novo Evento</button>
+  
+  <!-- Modal para inserção do evento -->
+  <div id="event-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Inserir Novo Evento</h3>
+      <form id="event-form">
+        <input type="text" id="event-title" placeholder="Título do Evento" required><br><br>
+        <input type="date" id="event-date" required><br><br>
+        <textarea id="event-desc" placeholder="Descrição do Evento" rows="3"></textarea><br><br>
+        <button type="submit">Adicionar Evento</button>
+        <button type="button" id="cancel-event-btn">Cancelar</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inicializa o calendário com alguns eventos pré-definidos
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: [
+          { title: 'Evento 1', start: '2025-03-15', description: 'Descrição do Evento 1' },
+          { title: 'Evento 2', start: '2025-03-20', description: 'Descrição do Evento 2' }
+        ],
+        eventClick: function(info) {
+          alert('Título: ' + info.event.title + '\nDescrição: ' + (info.event.extendedProps.description || 'Nenhuma descrição'));
+        }
+      });
+      calendar.render();
+      
+      // Abre o modal para inserção de novo evento
+      document.getElementById('open-event-btn').addEventListener('click', function() {
+        document.getElementById('event-modal').classList.remove('hidden');
+      });
+      
+      // Fecha o modal se o botão de cancelar for clicado
+      document.getElementById('cancel-event-btn').addEventListener('click', function() {
+        document.getElementById('event-modal').classList.add('hidden');
+      });
+      
+      // Lógica para adicionar o novo evento ao calendário
+      document.getElementById('event-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var titulo = document.getElementById('event-title').value;
+        var data = document.getElementById('event-date').value;
+        var descricao = document.getElementById('event-desc').value;
+        
+        calendar.addEvent({
+          title: titulo,
+          start: data,
+          extendedProps: { description: descricao }
+        });
+        
+        alert('Evento adicionado com sucesso!');
+        this.reset();
+        document.getElementById('event-modal').classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
