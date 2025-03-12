@@ -43,6 +43,8 @@
       padding: 2px;
     }
   </style>
+  <!-- Importando a biblioteca PapaParse via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
   <div class="calendar">
@@ -64,56 +66,66 @@
         </tr>
       </thead>
       <tbody>
-        <!-- As células do calendário serão geradas via JavaScript -->
+        <!-- O calendário será gerado via JavaScript -->
       </tbody>
     </table>
   </div>
 
   <script>
+    let events = [];
+
+    // Função para carregar os eventos de um CSV hospedado no GitHub
+    function loadEventsFromCSV() {
+      // URL do arquivo CSV no GitHub (use o link "raw")
+      const csvUrl = 'https://raw.githubusercontent.com/matheusinho98/site-ejc/refs/heads/main/events.csv';
+
+      Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          // Espera-se que o CSV tenha colunas "date" (no formato YYYY-MM-DD) e "description"
+          events = results.data.map(event => ({
+            date: event.date,
+            description: event.description
+          }));
+          generateCalendar(currentMonth, currentYear);
+        },
+        error: function(err) {
+          console.error('Erro ao carregar o CSV:', err);
+          generateCalendar(currentMonth, currentYear);
+        }
+      });
+    }
+
     const calendarTable = document.getElementById('calendarTable').getElementsByTagName('tbody')[0];
     const monthYear = document.getElementById('monthYear');
     let today = new Date();
     let currentMonth = today.getMonth();
     let currentYear = today.getFullYear();
 
-    // Exemplo de eventos: array de objetos com data (formato YYYY-MM-DD) e descrição
-    const events = [
-      { date: '2025-03-15', description: 'Evento A' },
-      { date: '2025-03-20', description: 'Evento B' },
-      { date: '2025-04-05', description: 'Evento C' }
-    ];
-
     function generateCalendar(month, year) {
-      // Limpar calendário anterior
       calendarTable.innerHTML = '';
 
-      // Obter o primeiro dia do mês (0 = domingo, 1 = segunda, etc.)
       let firstDay = new Date(year, month, 1).getDay();
-      // Número de dias no mês
       let daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // Atualizar título com mês e ano formatados
       monthYear.textContent = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
       let date = 1;
-      // Cria até 6 linhas para cobrir todos os dias
+      // Cria até 6 linhas para acomodar todos os dias do mês
       for (let i = 0; i < 6; i++) {
         let row = document.createElement('tr');
-
-        // Cria 7 colunas para os dias da semana
         for (let j = 0; j < 7; j++) {
           let cell = document.createElement('td');
-
-          // Preencher as células em branco até o primeiro dia do mês
-          if (i === 0 && j < firstDay) {
-            cell.textContent = '';
-          } else if (date > daysInMonth) {
+          if ((i === 0 && j < firstDay) || date > daysInMonth) {
             cell.textContent = '';
           } else {
             cell.textContent = date;
 
-            // Verificar se há evento nesse dia
+            // Formata a data para comparação (YYYY-MM-DD)
             let currentDateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(date).padStart(2, '0');
+
+            // Verifica e adiciona os eventos para a data atual
             events.filter(ev => ev.date === currentDateStr)
                   .forEach(ev => {
                     let div = document.createElement('div');
@@ -129,7 +141,6 @@
       }
     }
 
-    // Eventos de clique para navegar entre os meses
     document.getElementById('prev').addEventListener('click', () => {
       currentMonth--;
       if (currentMonth < 0) {
@@ -148,8 +159,8 @@
       generateCalendar(currentMonth, currentYear);
     });
 
-    // Gerar o calendário inicial
-    generateCalendar(currentMonth, currentYear);
+    // Carrega os eventos do CSV ao iniciar a página
+    loadEventsFromCSV();
   </script>
 </body>
 </html>
