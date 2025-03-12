@@ -82,8 +82,7 @@
     function loadEventsFromCSV() {
       // URL do arquivo CSV no GitHub (use o link "raw")
       const csvUrl = 'https://raw.githubusercontent.com/usuario/repositorio/main/events.csv';
-      // Adiciona um parâmetro timestamp para evitar cache
-      const csvUrl = baseCsvUrl + '?timestamp=' + new Date().getTime();
+
 
       Papa.parse(csvUrl, {
         download: true,
